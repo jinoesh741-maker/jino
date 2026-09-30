@@ -1,0 +1,26 @@
+import os
+from fastapi import FastAPI, HTTPException
+import google.generativeai as genai
+
+app = FastAPI(title="PocketSmart AI")
+
+# Configure Gemini API
+# Make sure to set your GEMINI_API_KEY environment variable, or paste key directly for testing
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+@app.get("/")
+def read_root():
+    return {"message": "PocketSmart AI FastAPI Backend is running!"}
+
+@app.get("/test-gemini")
+def test_gemini_connection():
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content("Ping! Confirm Gemini API connection.")
+        return {
+            "status": "success",
+            "gemini_response": response.text
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
